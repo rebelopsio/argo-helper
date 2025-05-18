@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps-by-git
+  namespace: argocd
+spec:
+  generators:
+    - git:  # Use a git generator to create applications from directory structure
+        repoURL: https://github.com/yourorg/your-repo.git
+        revision: HEAD
+        directories:
+          - path: apps/*
+  template:
+    metadata:
+      name: '{{`{{ path.basename }}`}}'
+      labels:
+        app: '{{`{{ path.basename }}`}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/yourorg/your-repo.git
+        targetRevision: HEAD
+        path: '{{`{{ path }}`}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{`{{ path.basename }}`}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

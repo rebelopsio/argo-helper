@@ -1,0 +1,7 @@
+FROM alpine:3.19
+
+# Copy the built binary from the goreleaser build
+COPY argo-helper /usr/local/bin/argo-helper
+
+# Set the entrypoint to the binary
+ENTRYPOINT ["/usr/local/bin/argo-helper"]

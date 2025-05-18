@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps-merge
+  namespace: argocd
+spec:
+  generators:
+    - merge:  # Use a merge generator to combine and merge parameters
+        generators:
+          - clusters:  # Get cluster information
+              selector:
+                matchLabels:
+                  argocd.argoproj.io/secret-type: cluster
+          - list:  # Define application information
+              elements:
+                - app: frontend
+                  path: apps/frontend
+                - app: backend
+                  path: apps/backend
+                - app: database
+                  path: apps/database
+        mergeKeys:
+          - app
+  template:
+    metadata:
+      name: '{{`{{ app }}`}}-{{`{{ name }}`}}'
+      labels:
+        app: '{{`{{ app }}`}}'
+        cluster: '{{`{{ name }}`}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/yourorg/your-repo.git
+        targetRevision: HEAD
+        path: '{{`{{ path }}`}}'
+      destination:
+        server: '{{`{{ server }}`}}'
+        namespace: '{{`{{ app }}`}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

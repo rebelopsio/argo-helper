@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps-matrix
+  namespace: argocd
+spec:
+  generators:
+    - matrix:  # Use a matrix generator to combine two generators
+        generators:
+          - git:  # First generator: find all apps
+              repoURL: https://github.com/yourorg/your-repo.git
+              revision: HEAD
+              directories:
+                - path: apps/*
+          - clusters:  # Second generator: find all clusters
+              selector:
+                matchLabels:
+                  argocd.argoproj.io/secret-type: cluster
+  template:
+    metadata:
+      name: '{{`{{ path.basename }}`}}-{{`{{ name }}`}}'
+      labels:
+        app: '{{`{{ path.basename }}`}}'
+        cluster: '{{`{{ name }}`}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/yourorg/your-repo.git
+        targetRevision: HEAD
+        path: '{{`{{ path }}`}}'
+      destination:
+        server: '{{`{{ server }}`}}'
+        namespace: '{{`{{ path.basename }}`}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

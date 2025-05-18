@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps-by-cluster
+  namespace: argocd
+spec:
+  generators:
+    - clusters:  # Use a cluster generator to target multiple clusters
+        selector:
+          matchLabels:
+            environment: production
+  template:
+    metadata:
+      name: '{{`{{ name }}`}}-{{`{{ metadata.labels.environment }}`}}'
+      labels:
+        environment: '{{`{{ metadata.labels.environment }}`}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/yourorg/your-repo.git
+        targetRevision: HEAD
+        path: apps/{{`{{ name }}`}}
+      destination:
+        namespace: '{{`{{ name }}`}}'
+        server: '{{`{{ server }}`}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

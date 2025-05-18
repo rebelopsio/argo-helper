@@ -1,0 +1,102 @@
+version: '3'
+
+vars:
+  BINARY_NAME: argo-helper
+  VERSION:
+    sh: git describe --tags --always --dirty || echo "dev"
+  COMMIT_HASH:
+    sh: git rev-parse --short HEAD || echo "unknown"
+  BUILD_DATE:
+    sh: date -u '+%Y-%m-%dT%H:%M:%SZ'
+  LDFLAGS: -s -w -X github.com/rebelopsio/argo-helper/cmd.version={{.VERSION}} -X github.com/rebelopsio/argo-helper/cmd.commit={{.COMMIT_HASH}} -X github.com/rebelopsio/argo-helper/cmd.buildDate={{.BUILD_DATE}}
+
+tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build the binary
+    cmds:
+      - go build -ldflags "{{.LDFLAGS}}" -o {{.BINARY_NAME}} main.go
+    sources:
+      - "**/*.go"
+    generates:
+      - "{{.BINARY_NAME}}"
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v ./...
+
+  test:ci:
+    desc: Run tests with coverage for CI
+    cmds:
+      - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+  install:
+    desc: Install the binary
+    deps: [build]
+    cmds:
+      - install -m 755 {{.BINARY_NAME}} /usr/local/bin/
+
+  lint:
+    desc: Run linters
+    cmds:
+      - golangci-lint run --config .golangci.yml
+
+  fmt:
+    desc: Format code
+    cmds:
+      - gofumpt -l -w .
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -f {{.BINARY_NAME}}
+      - rm -rf dist/
+      - go clean -cache -testcache
+
+  run:
+    desc: Run the binary
+    deps: [build]
+    cmds:
+      - ./{{.BINARY_NAME}} {{.CLI_ARGS}}
+
+  release:snapshot:
+    desc: Create a snapshot release
+    cmds:
+      - goreleaser --snapshot --clean
+
+  release:
+    desc: Create a full release (tag must exist)
+    cmds:
+      - goreleaser --clean
+
+  docker:build:
+    desc: Build Docker image
+    cmds:
+      - docker build -t rebelopsio/{{.BINARY_NAME}}:{{.VERSION}} .
+
+  docker:run:
+    desc: Run Docker image
+    deps: [docker:build]
+    cmds:
+      - docker run --rm rebelopsio/{{.BINARY_NAME}}:{{.VERSION}} {{.CLI_ARGS}}
+
+  mod:tidy:
+    desc: Tidy Go modules
+    cmds:
+      - go mod tidy
+
+  mod:download:
+    desc: Download Go modules
+    cmds:
+      - go mod download
+
+  mod:update:
+    desc: Update all dependencies
+    cmds:
+      - go get -u ./...
+      - task: mod:tidy
