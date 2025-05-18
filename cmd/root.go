@@ -36,7 +36,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "preview the changes without making them")
 
 	// Bind flags to viper
-	viper.BindPFlag("dry-run", rootCmd.PersistentFlags().Lookup("dry-run"))
+	if err := viper.BindPFlag("dry-run", rootCmd.PersistentFlags().Lookup("dry-run")); err != nil {
+		fmt.Println("Error binding flag:", err)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.

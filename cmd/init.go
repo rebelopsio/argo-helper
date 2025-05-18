@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	repoPath    string
-	projectName string
+	repoPath     string
+	projectName  string
 	withExamples bool
 )
 
@@ -37,7 +37,9 @@ func init() {
 	// Local flags
 	initCmd.Flags().StringVarP(&projectName, "project", "p", "", "name of the ArgoCD project (required)")
 	initCmd.Flags().BoolVarP(&withExamples, "examples", "e", false, "include example applications and ApplicationSet")
-	initCmd.MarkFlagRequired("project")
+	if err := initCmd.MarkFlagRequired("project"); err != nil {
+		fmt.Println("Error marking flag as required:", err)
+	}
 }
 
 // SetInitFlags sets the flags for the init command
@@ -80,7 +82,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 	fmt.Println("1. Update the values.yaml file with your repository URL and other settings")
 	fmt.Println("2. Create your application templates in templates/apps/")
 	fmt.Println("3. Add environment-specific values in values/")
-	
+
 	if withExamples {
 		fmt.Println("\nExample files have been created to help you get started:")
 		fmt.Println("- templates/apps/example-app.yaml - Example application template")
@@ -222,27 +224,27 @@ This repository contains the ArgoCD applications and projects for the %s project
 
 ## Structure
 
-- ` + "`custom-resources/`" + `: Contains Custom Resource Definitions (CRDs) if needed
-- ` + "`values/`" + `: Contains environment-specific values files
-- ` + "`templates/`" + `:
-  - ` + "`apps/`" + `: Application templates
-  - ` + "`projects/`" + `: Project templates
-  - ` + "`_helpers.tpl`" + `: Common template helpers
-- ` + "`values.yaml`" + `: Default values
-- ` + "`Chart.yaml`" + `: Chart metadata
+- `+"`custom-resources/`"+`: Contains Custom Resource Definitions (CRDs) if needed
+- `+"`values/`"+`: Contains environment-specific values files
+- `+"`templates/`"+`:
+  - `+"`apps/`"+`: Application templates
+  - `+"`projects/`"+`: Project templates
+  - `+"`_helpers.tpl`"+`: Common template helpers
+- `+"`values.yaml`"+`: Default values
+- `+"`Chart.yaml`"+`: Chart metadata
 
 ## Usage
 
-1. Update the ` + "`values.yaml`" + ` file with your repository URL and other settings
-2. Add your application templates in ` + "`templates/apps/`" + `
-3. Add environment-specific values in ` + "`values/`" + `
-4. Use ` + "`helm template`" + ` to generate manifests or commit to your ArgoCD repository
+1. Update the `+"`values.yaml`"+` file with your repository URL and other settings
+2. Add your application templates in `+"`templates/apps/`"+`
+3. Add environment-specific values in `+"`values/`"+`
+4. Use `+"`helm template`"+` to generate manifests or commit to your ArgoCD repository
 
 ## Adding New Applications
 
-Create a new application template in ` + "`templates/apps/`" + ` following this pattern:
+Create a new application template in `+"`templates/apps/`"+` following this pattern:
 
-` + "```yaml" + `
+`+"```yaml"+`
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -259,7 +261,7 @@ spec:
     namespace: {{ .Values.destination.namespace }}
   syncPolicy:
     {{- toYaml .Values.applications.defaults.syncPolicy | nindent 4 }}
-` + "```" + `
+`+"```"+`
 `, projectName, projectName),
 	}
 
@@ -352,7 +354,7 @@ global:
 func printDryRun() error {
 	fmt.Println("Dry run: The following structure would be created:")
 	fmt.Printf("\nRoot directory: %s\n\n", repoPath)
-	
+
 	// Print directory structure
 	items := []string{
 		".helmignore",

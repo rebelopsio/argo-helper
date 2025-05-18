@@ -118,7 +118,7 @@ func (m initModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Form is complete, run init command
 			m.submitted = true
-			
+
 			// Build args for the command
 			path := m.pathInput.Value()
 			if path == "" {
@@ -146,7 +146,7 @@ func (m initModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Instead of using the actual commands directly,
 			// for now just simulate success
 			// TODO: Properly integrate with cmd package
-			
+
 			// Simulate success
 			fmt.Printf("Creating repository structure at %s\n", path)
 			err := fmt.Errorf("") // No error
@@ -218,7 +218,7 @@ func (m initModel) View() string {
 	projectInput := fmt.Sprintf("Project Name (required):\n%s", projectInputStyle.Render(m.projectInput.View()))
 	pathInput := fmt.Sprintf("Repository Path (optional):\n%s", pathInputStyle.Render(m.pathInput.View()))
 	examplesToggle := fmt.Sprintf("Include examples:\n%s", checkboxStyle.Render(checkbox))
-	
+
 	help := "\nTab/Shift+Tab: Navigate • Space: Toggle checkbox • Enter: Submit • Esc: Cancel"
 
 	return appStyle.Render(
@@ -233,4 +233,3 @@ func (m initModel) View() string {
 		),
 	)
 }
-

@@ -88,10 +88,11 @@ func runNew(cmd *cobra.Command, args []string) error {
 	}
 
 	// Print success message
-	fmt.Printf("\n✅ %s '%s' successfully created at %s\n\n", 
-		capitalizeFirstLetter(resourceType), 
-		resourceName, 
-		filepath.Join(outputPath, fmt.Sprintf("%s-%s.yaml", resourceType, resourceName)))
+	filename := fmt.Sprintf("%s-%s.yaml", resourceType, resourceName)
+	fmt.Printf("\n✅ %s '%s' successfully created at %s\n\n",
+		capitalizeFirstLetter(resourceType),
+		resourceName,
+		filepath.Join(outputPath, filename))
 
 	fmt.Println("Next steps:")
 	fmt.Println("1. Review and customize the generated resource")
@@ -112,11 +113,11 @@ func createResource() error {
 	// Write the file
 	filename := fmt.Sprintf("%s-%s.yaml", resourceType, resourceName)
 	filePath := filepath.Join(outputPath, filename)
-	
+
 	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to create file %s: %w", filename, err)
 	}
-	
+
 	fmt.Printf("Created file: %s\n", filePath)
 	return nil
 }
@@ -158,21 +159,21 @@ func printNewDryRun() error {
 	fmt.Printf("\nResource Type: %s\n", resourceType)
 	fmt.Printf("Resource Name: %s\n", resourceName)
 	fmt.Printf("Output Path: %s\n\n", outputPath)
-	
+
 	filename := fmt.Sprintf("%s-%s.yaml", resourceType, resourceName)
 	fmt.Printf("File: %s\n\n", filepath.Join(outputPath, filename))
-	
+
 	fmt.Println("Template content:")
 	fmt.Println("---")
-	
+
 	switch resourceType {
 	case "applicationset":
 		fmt.Println(generateApplicationSetTemplate())
 	}
-	
+
 	fmt.Println("---")
 	fmt.Printf("\nTo create this resource, run again without the --dry-run flag\n")
-	
+
 	return nil
 }
 
@@ -180,5 +181,8 @@ func capitalizeFirstLetter(s string) string {
 	if len(s) == 0 {
 		return s
 	}
-	return string(s[0]-32) + s[1:]
+	if 'a' <= s[0] && s[0] <= 'z' {
+		return string(s[0]-32) + s[1:]
+	}
+	return s
 }

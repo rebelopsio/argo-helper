@@ -11,16 +11,16 @@ import (
 
 var (
 	appStyle = lipgloss.NewStyle().
-		Padding(1, 2).
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#3c3836")).
-		Width(60)
+			Padding(1, 2).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#3c3836")).
+			Width(60)
 
 	titleStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#83a598")).
-		Bold(true).
-		Padding(0, 1).
-		MarginBottom(1)
+			Foreground(lipgloss.Color("#83a598")).
+			Bold(true).
+			Padding(0, 1).
+			MarginBottom(1)
 )
 
 type menuItem struct {

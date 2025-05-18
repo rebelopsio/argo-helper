@@ -40,7 +40,7 @@ func initialNewModel() newModel {
 	outputPathInput.Placeholder = "templates/apps"
 	outputPathInput.CharLimit = 100
 	outputPathInput.Width = 40
-	
+
 	return newModel{
 		resourceTypeInput: resourceTypeInput,
 		resourceNameInput: resourceNameInput,
@@ -114,7 +114,7 @@ func (m newModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Form is complete, run 'new' command
 			m.submitted = true
-			
+
 			// Get the values
 			resourceName := m.resourceNameInput.Value()
 			outputPath := m.outputPathInput.Value()
@@ -131,20 +131,20 @@ func (m newModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				outputPath = filepath.Join(cwd, outputPath)
 			}
-			
+
 			// Call the CLI handler function
 			// We need to use actual command, create a minimal one
 			cmdPkg.SetNewFlags(nil, resourceType, resourceName, outputPath)
-			
+
 			// Execute without an actual cobra command
 			err := generateNewResource(resourceType, resourceName, outputPath)
-			
+
 			if err != nil {
 				m.err = err
 				m.submitted = false
 				return m, nil
 			}
-			
+
 			// Return to the main menu after successful submission
 			return NewModel(), nil
 		}
@@ -195,11 +195,11 @@ func generateNewResource(resourceType, resourceName, outputPath string) error {
 	// Write the file
 	filename := fmt.Sprintf("%s-%s.yaml", resourceType, resourceName)
 	filePath := filepath.Join(outputPath, filename)
-	
+
 	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to create file %s: %w", filename, err)
 	}
-	
+
 	fmt.Printf("Created file: %s\n", filePath)
 	return nil
 }
@@ -243,7 +243,7 @@ func (m newModel) View() string {
 	}
 
 	var resourceTypeStyle, resourceNameStyle, outputPathStyle lipgloss.Style
-	
+
 	switch m.focusIndex {
 	case 0:
 		resourceTypeStyle = focusedStyle
@@ -271,7 +271,7 @@ func (m newModel) View() string {
 	resourceTypeInput := fmt.Sprintf("Resource Type (default: applicationset):\n%s", resourceTypeStyle.Render(m.resourceTypeInput.View()))
 	resourceNameInput := fmt.Sprintf("Resource Name (required):\n%s", resourceNameStyle.Render(m.resourceNameInput.View()))
 	outputPathInput := fmt.Sprintf("Output Path (default: templates/apps):\n%s", outputPathStyle.Render(m.outputPathInput.View()))
-	
+
 	help := "\nTab/Shift+Tab: Navigate • Enter: Submit • Esc: Cancel"
 
 	return appStyle.Render(
